@@ -22,8 +22,8 @@ class ViewController: UIViewController {
         // MARK: Collection View Setup
         collectionView.collectionViewLayout = createLayout()
         collectionView.register(PromotedAppCollectionViewCell.self, forCellWithReuseIdentifier: PromotedAppCollectionViewCell.reuseIdentifier)
-
         collectionView.register(StandardAppCollectionViewCell.self, forCellWithReuseIdentifier: StandardAppCollectionViewCell.reuseIdentifier)
+        collectionView.register(CategoryCollectionViewCell.self, forCellWithReuseIdentifier: CategoryCollectionViewCell.reuseIdentifier)
         configureDataSource()
     }
     
@@ -43,14 +43,23 @@ class ViewController: UIViewController {
                 
                 return section
             case .standard:
-                // Mark: Standard Section Layout
+                // MARK: Standard Section Layout
                 let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1/3))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                //item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4)
+                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4)
                 let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.92), heightDimension: .estimated(250))
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitem: item, count: 3)
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .groupPagingCentered
+                
+                return section
+            case .categories:
+                // MARK: Categories Secion Layout
+                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
                 
                 return section
             default:
@@ -76,8 +85,14 @@ class ViewController: UIViewController {
                 cell.configureCell(item.app!, hideBottomLine: isThirdItem)
 
                 return cell
-            default:
-                fatalError("Not yet implemented")
+            case .categories:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCollectionViewCell.reuseIdentifier, for: indexPath) as! CategoryCollectionViewCell
+                let isLastItem = collectionView.numberOfItems(inSection: indexPath.section) == indexPath.row + 1
+                cell.configureCell(item.category!, hideBottomLine: isLastItem)
+                
+                return cell
+//            default:
+//                fatalError("Not yet implemented")
             }
         })
         
@@ -88,10 +103,12 @@ class ViewController: UIViewController {
         
         let popularSection = Section.standard("Popular this week")
         let essentialSection = Section.standard("Essential picks")
+        let categoriesSection = Section.categories
         
-        snapshot.appendSections([popularSection, essentialSection])
+        snapshot.appendSections([popularSection, essentialSection, categoriesSection])
         snapshot.appendItems(Item.popularApps, toSection: popularSection)
         snapshot.appendItems(Item.essentialApps, toSection: essentialSection)
+        snapshot.appendItems(Item.categories, toSection: categoriesSection)
         
         sections = snapshot.sectionIdentifiers
         dataSource.apply(snapshot)
