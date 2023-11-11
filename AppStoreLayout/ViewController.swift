@@ -57,13 +57,19 @@ class ViewController: UIViewController {
                 // MARK: Categories Secion Layout
                 let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                let availableLayoutWidth = layoutEnvironment.container.effectiveContentSize.width
+                let groupWidth = availableLayoutWidth * 0.92
+                let remainingWidth = availableLayoutWidth - groupWidth
+                let halfOfRemainingWidth = remainingWidth / 2.0
+                let nonCategorySectionItemInset = CGFloat(4)
+                let itemLeadingAndTrailingInset = halfOfRemainingWidth + nonCategorySectionItemInset
+                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: itemLeadingAndTrailingInset, bottom: 0, trailing: itemLeadingAndTrailingInset)
+                
                 let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 
                 return section
-            default:
-                return nil
             }
         }
         return layout
